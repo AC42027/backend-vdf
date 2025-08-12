@@ -1,0 +1,131 @@
+[
+  {
+    "ip": "10.107.210.111",
+    "slot": 0,
+    "tags": [
+      "VDF_CC01_Corrientes[0]", 
+      "VDF_CC01_Corrientes[1]",
+      "VDF_CC01_Corrientes[2]",
+      "VDF_CC01_Corrientes[3]",
+      "VDF_CC01_Corrientes[4]",
+      "VDF_CC01_Corrientes[5]",
+      "VDF_CC01_Corrientes[6]",
+      "VDF_CC01_Corrientes[7]",
+      "VDF_CC01_Corrientes[8]",
+      "VDF_CC01_Corrientes[9]",
+      "VDF_CC01_Corrientes[10]",
+      "VDF_CC01_Corrientes[11]",
+      "VDF_CC01_Corrientes[12]",
+      "VDF_CC01_Corrientes[13]",
+      "VDF_CC01_Corrientes[14]",
+      "VDF_CC01_Corrientes[15]",
+      "VDF_CC01_Temp[0]", 
+      "VDF_CC01_Temp[1]"
+    ]
+  },
+  {
+    "ip": "10.107.210.121",
+    "slot": 0,
+    "tags": [
+      "VDF_CC02_Corrientes[0]",
+      "VDF_CC02_Corrientes[1]",
+      "VDF_CC02_Temp[0]",
+      "VDF_CC02_Temp[1]"
+    ]
+  },
+  {
+    "ip": "10.107.210.131",
+    "slot": 0,
+    "tags": [
+      "VDF_CC03_Corrientes[0]",
+      "VDF_CC03_Corrientes[1]",
+      "VDF_CC03_Temp[0]",
+      "VDF_CC03_Temp[1]"
+    ]
+  },
+
+
+  {
+    "ip": "10.107.208.200",
+    "slot": 0,
+    "tags": [
+      "PF753_CAB250_FeederBottomExtruder_Amp",
+      "PF753_CAB250_FeederBottomExtruder_Temp",
+      "PF753_CAB250_FeederTopExtruder_Amp",
+      "PF753_CAB250_FeederTopExtruder_Temp",
+      "PF753_CAB250_LowerBelt1_Amp",
+      "PF753_CAB250_LowerBelt1_Temp",
+      "PF753_CAB250_LowerBelt2_Amp",
+      "PF753_CAB250_LowerBelt2_Temp",
+      "PF753_CAB250_LowerWigWagRot_Amp",
+      "PF753_CAB250_LowerWigWagRot_Temp",
+      "PF753_CAB250_LowerWigWagTrasl_Amp",
+      "PF753_CAB250_LowerWigWagTrasl_Temp",
+      "PF753_CAB250_UpperBelt1_Amp",
+      "PF753_CAB250_UpperBelt1_Temp",
+      "PF753_CAB250_UpperBelt2_Amp",
+      "PF753_CAB250_UpperBelt2_Temp",
+      "PF753_CAB250_UpperWigWagRot_Amp",
+      "PF753_CAB250_UpperWigWagRot_Temp",
+      "PF753_CAB250_UpperWigWagTrasl_Amp",
+      "PF753_CAB250_UpperWigWagTrasl_Temp"
+    ]
+  },
+
+  {
+    "ip": "10.107.208.200",
+    "slot": 2,
+    "tags":[
+      "PF753_CAB250_PlyLetOff2LWin_Amp",
+      "PF753_CAB250_PlyLetOff2LWin_Temp",
+      "PF753_CAB300_Conveyor1_Amp",
+      "PF753_CAB300_Conveyor1_Temp",
+      "PF753_CAB300_Conveyor2_Amp",
+      "PF753_CAB300_Conveyor2_Temp",
+      "PF753_CAB300_Conveyor3_Amp",
+      "PF753_CAB300_Conveyor3_Temp",
+      "PF753_CAB300_Conveyor4_Amp",
+      "PF753_CAB300_Conveyor4_Temp",
+      "PF753_CAB300_Conveyor5_Amp",
+      "PF753_CAB300_Conveyor5_Temp",
+      "PF753_CAB300_Conveyor6_Amp",
+      "PF753_CAB300_Conveyor6_Temp",
+      "PF753_CAB300_Conveyor7_Amp",
+      "PF753_CAB300_Conveyor7_Temp",
+      "PF753_CAB300_Conveyor8_Amp",
+      "PF753_CAB300_Conveyor8_Temp",
+      "PF753_CAB300_Conveyor9_Amp",
+      "PF753_CAB300_Conveyor9_Temp",
+      "PF753_CAB300_CouplingRoll_Amp",
+      "PF753_CAB300_CouplingRoll_Temp",
+      "PF753_CAB300_RollLayer_Amp",
+      "PF753_CAB300_RollLayer_Temp"
+    ]
+  },
+
+  {
+    "ip": "10.107.208.201",
+    "slot": 0,
+    "tags":[
+      "PF753_CoolingCan_Amp",
+      "PF753_CoolingCan_Temp",
+      "PF753_CuttingUnit_Amp",
+      "PF753_CuttingUnit_Temp" 
+    ]
+
+
+
+
+
+
+
+  }
+
+  
+
+
+
+
+
+  
+]
