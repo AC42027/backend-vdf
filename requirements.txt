@@ -1,0 +1,14 @@
+APScheduler==3.10.4
+asgiref==3.9.1
+diff-match-patch==20241021
+Django==5.2.5
+django-filter==25.1
+django-import-export==4.3.9
+djangorestframework==3.16.1
+pylogix==1.1.1
+pytz==2025.2
+six==1.17.0
+sqlparse==0.5.3
+tablib==3.8.0
+tzdata==2025.2
+tzlocal==5.3.1
