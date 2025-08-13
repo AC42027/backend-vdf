@@ -1,8 +1,14 @@
 # vdf_monitor/views.py
 from rest_framework import generics   # Vistas genéricas de DRF
-from django.db.models import Prefetch # Optimización opcional
-from .models import VDF, Lectura
-from .serializers import VDFSerializer, LecturaSerializer
+from django.db.models import Q  # Filtros avanzados
+from .models import Division, Area, Zona, VDF, Lectura
+from .serializers import (
+    DivisionSerializer,
+    AreaSerializer,
+    ZonaSerializer,
+    VDFSerializer,
+    LecturaSerializer,
+)
 
 class VDFListAPIView(generics.ListAPIView):
     """
@@ -27,11 +33,13 @@ class VDFListAPIView(generics.ListAPIView):
         if tipo:
             qs = qs.filter(tipo=tipo)
         if division:
-            qs = qs.filter(division=division)
+            qs = qs.filter(
+                Q(zona__area__division__nombre=division) | Q(division=division)
+            )
         if area:
-            qs = qs.filter(area=area)
+            qs = qs.filter(Q(zona__area__nombre=area) | Q(area=area))
         if zone:
-            qs = qs.filter(zone=zone)
+            qs = qs.filter(Q(zona__nombre=zone) | Q(zone=zone))
         if ip:
             qs = qs.filter(ip=ip)
         if tag:
@@ -48,6 +56,35 @@ class VDFListAPIView(generics.ListAPIView):
 
         # --- Optimización opcional: prefetch de lecturas si quisieras histórico ---
         # (No es estrictamente necesario para 'latest', que ya se resuelve en el serializer)
+        return qs
+
+
+class DivisionListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Division.objects.all().order_by("nombre")
+    serializer_class = DivisionSerializer
+
+
+class AreaListCreateAPIView(generics.ListCreateAPIView):
+    serializer_class = AreaSerializer
+
+    def get_queryset(self):
+        qs = Area.objects.select_related("division").order_by("division__nombre", "nombre")
+        division_id = self.request.query_params.get("division_id")
+        if division_id:
+            qs = qs.filter(division_id=division_id)
+        return qs
+
+
+class ZonaListCreateAPIView(generics.ListCreateAPIView):
+    serializer_class = ZonaSerializer
+
+    def get_queryset(self):
+        qs = Zona.objects.select_related("area", "area__division").order_by(
+            "area__division__nombre", "area__nombre", "nombre"
+        )
+        area_id = self.request.query_params.get("area_id")
+        if area_id:
+            qs = qs.filter(area_id=area_id)
         return qs
 
 class LecturaListAPIView(generics.ListAPIView):
