@@ -36,9 +36,6 @@ class VDFAdmin(admin.ModelAdmin):
         "zona__nombre",
         "zona__area__nombre",
         "zona__area__division__nombre",
-        "division",
-        "area",
-        "zone",
     ]
 
     ordering = (

@@ -36,9 +36,9 @@ class VDFSerializer(serializers.ModelSerializer):
     """Serializa un VDF y adjunta su última lectura en el campo 'latest'."""
 
     latest = serializers.SerializerMethodField()    # Campo calculado por método
-    division = serializers.SerializerMethodField()
-    area = serializers.SerializerMethodField()
-    zone = serializers.SerializerMethodField()
+    division_name = serializers.SerializerMethodField()
+    area_name = serializers.SerializerMethodField()
+    zona_name = serializers.SerializerMethodField()
     zona = serializers.PrimaryKeyRelatedField(
         queryset=Zona.objects.all(), allow_null=True, required=False
     )
@@ -48,9 +48,9 @@ class VDFSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "nombre",
-            "division",
-            "area",
-            "zone",
+            "division_name",
+            "area_name",
+            "zona_name",
             "zona",
             "ip",
             "slot",
@@ -60,17 +60,17 @@ class VDFSerializer(serializers.ModelSerializer):
             "latest",
         )
 
-    def get_division(self, obj):
+    def get_division_name(self, obj):
         if obj.zona_id:
             return obj.zona.area.division.nombre
         return obj.division
 
-    def get_area(self, obj):
+    def get_area_name(self, obj):
         if obj.zona_id:
             return obj.zona.area.nombre
         return obj.area
 
-    def get_zone(self, obj):
+    def get_zona_name(self, obj):
         if obj.zona_id:
             return obj.zona.nombre
         return obj.zone
