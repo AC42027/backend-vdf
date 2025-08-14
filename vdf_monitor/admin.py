@@ -7,6 +7,8 @@ from django.contrib import admin                 # Importa el admin de Django
 from .models import Division, Area, Zona, VDF, Lectura  # Importa tus modelos
 
 
+
+
 @admin.register(VDF)
 class VDFAdmin(admin.ModelAdmin):
     """Formulario del admin para VDF.
@@ -52,6 +54,7 @@ class VDFAdmin(admin.ModelAdmin):
 
     list_per_page = 50
 
+
     # --------------------
     # Helpers para mostrar la jerarquía
     # --------------------
@@ -69,6 +72,7 @@ class VDFAdmin(admin.ModelAdmin):
         return obj.zona.nombre if obj.zona_id else obj.zone
 
     zona_name.short_description = "Zona"
+
 
 
 @admin.register(Division)
