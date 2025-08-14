@@ -43,6 +43,18 @@ class VDFSerializer(serializers.ModelSerializer):
         queryset=Zona.objects.all(), allow_null=True, required=False
     )
 
+    division_name = serializers.SerializerMethodField()
+    area_name = serializers.SerializerMethodField()
+    zona_name = serializers.SerializerMethodField()
+    zona = serializers.PrimaryKeyRelatedField(
+        queryset=Zona.objects.all(), allow_null=True, required=False
+    )
+
+    division = serializers.SerializerMethodField()
+    area = serializers.SerializerMethodField()
+    zone = serializers.SerializerMethodField()
+
+
     class Meta:
         model = VDF
         fields = (
@@ -51,6 +63,13 @@ class VDFSerializer(serializers.ModelSerializer):
             "division_name",
             "area_name",
             "zona_name",
+            "division_name",
+            "area_name",
+            "zona_name",
+            "division",
+            "area",
+            "zone",
+
             "zona",
             "ip",
             "slot",
@@ -59,8 +78,7 @@ class VDFSerializer(serializers.ModelSerializer):
             "descripcion",
             "latest",
         )
-
-    def get_division_name(self, obj):
+def get_division_name(self, obj):
         if obj.zona_id:
             return obj.zona.area.division.nombre
         return obj.division
@@ -74,6 +92,8 @@ class VDFSerializer(serializers.ModelSerializer):
         if obj.zona_id:
             return obj.zona.nombre
         return obj.zone
+
+        
 
     def get_latest(self, obj):
         """Retorna la última lectura (por timestamp) del VDF."""
