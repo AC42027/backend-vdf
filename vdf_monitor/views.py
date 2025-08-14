@@ -51,8 +51,14 @@ class VDFListAPIView(generics.ListAPIView):
         if ordering in {'nombre', '-nombre', 'tipo', '-tipo', 'tag', '-tag', 'ip', '-ip'}:
             qs = qs.order_by(ordering)
         else:
-            # Orden por defecto (coherente: por división/área/zona y luego por tipo/tag)
-            qs = qs.order_by('division', 'area', 'zone', 'tipo', 'tag')
+            # Orden por defecto usando la jerarquía normalizada
+            qs = qs.order_by(
+                'zona__area__division__nombre',
+                'zona__area__nombre',
+                'zona__nombre',
+                'tipo',
+                'tag',
+            )
 
         # --- Optimización opcional: prefetch de lecturas si quisieras histórico ---
         # (No es estrictamente necesario para 'latest', que ya se resuelve en el serializer)
