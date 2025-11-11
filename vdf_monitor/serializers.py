@@ -1,17 +1,26 @@
-# Importa las utilidades de DRF para crear serializadores
+# vdf_monitor/serializers.py
+# =============================================================================
 from rest_framework import serializers
-# Importa tus modelos VDF y Lectura
-from .models import Division, Area, Zona, VDF, Lectura
+from rest_framework.validators import UniqueTogetherValidator
+from .models import Division, Area, Zona, Vdf, Signal, Lectura
 
+
+# --------------------------- Lecturas ---------------------------
 class LecturaSerializer(serializers.ModelSerializer):
-    """ Serializa una lectura individual (valor + fecha). """
-    class Meta:
-        model = Lectura                             # Modelo a serializar
-        fields = ('valor', 'timestamp')             # Campos expuestos en la API
+    vdf_id    = serializers.IntegerField(source="signal.vdf_id", read_only=True)
+    signal_id = serializers.IntegerField(source="signal.id", read_only=True)
+    metric    = serializers.CharField(source="signal.metric", read_only=True)
+    tag       = serializers.CharField(source="signal.tag", read_only=True)
 
+    class Meta:
+        model  = Lectura
+        fields = ("vdf_id", "signal_id", "metric", "tag", "valor", "timestamp", "estado")
+
+
+# --------------------- Jerarquía normalizada ---------------------
 class DivisionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Division
+        model  = Division
         fields = ("id", "nombre")
 
 
@@ -19,94 +28,61 @@ class AreaSerializer(serializers.ModelSerializer):
     division_nombre = serializers.CharField(source="division.nombre", read_only=True)
 
     class Meta:
-        model = Area
+        model  = Area
         fields = ("id", "division", "division_nombre", "nombre")
 
 
 class ZonaSerializer(serializers.ModelSerializer):
-    area_nombre = serializers.CharField(source="area.nombre", read_only=True)
+    area_nombre     = serializers.CharField(source="area.nombre", read_only=True)
     division_nombre = serializers.CharField(source="area.division.nombre", read_only=True)
 
     class Meta:
-        model = Zona
+        model  = Zona
         fields = ("id", "area", "area_nombre", "division_nombre", "nombre")
 
 
+# ------------------------------ VDF ------------------------------
 class VDFSerializer(serializers.ModelSerializer):
-    """Serializa un VDF y adjunta su última lectura en el campo 'latest'."""
-
-    latest = serializers.SerializerMethodField()    # Campo calculado por método
-    division_name = serializers.SerializerMethodField()
-    area_name = serializers.SerializerMethodField()
-    zona_name = serializers.SerializerMethodField()
     zona = serializers.PrimaryKeyRelatedField(
         queryset=Zona.objects.all(), allow_null=True, required=False
     )
-
     division_name = serializers.SerializerMethodField()
-    area_name = serializers.SerializerMethodField()
-    zona_name = serializers.SerializerMethodField()
-    zona = serializers.PrimaryKeyRelatedField(
-        queryset=Zona.objects.all(), allow_null=True, required=False
-    )
-
-    division = serializers.SerializerMethodField()
-    area = serializers.SerializerMethodField()
-    zone = serializers.SerializerMethodField()
-
+    area_name     = serializers.SerializerMethodField()
+    zona_name     = serializers.SerializerMethodField()
 
     class Meta:
-        model = VDF
+        model  = Vdf
         fields = (
             "id",
             "nombre",
-            "division_name",
-            "area_name",
-            "zona_name",
-            "division_name",
-            "area_name",
-            "zona_name",
-            "division",
-            "area",
-            "zone",
-
-            "zona",
             "ip",
             "slot",
-            "tag",
-            "tipo",
             "descripcion",
-            "latest",
+            "zona",
+            "division_name",
+            "area_name",
+            "zona_name",
         )
-def get_division_name(self, obj):
-        if obj.zona_id:
-            return obj.zona.area.division.nombre
-        return obj.division
+
+    def get_division_name(self, obj):
+        return obj.zona.area.division.nombre if getattr(obj, "zona_id", None) else getattr(obj, "division", None)
 
     def get_area_name(self, obj):
-        if obj.zona_id:
-            return obj.zona.area.nombre
-        return obj.area
+        return obj.zona.area.nombre if getattr(obj, "zona_id", None) else getattr(obj, "area", None)
 
     def get_zona_name(self, obj):
-        if obj.zona_id:
-            return obj.zona.nombre
-        return obj.zone
+        return obj.zona.nombre if getattr(obj, "zona_id", None) else getattr(obj, "zone", None)
 
-        
 
-    def get_latest(self, obj):
-        """Retorna la última lectura (por timestamp) del VDF."""
-
-        # Intenta primero con 'lecturas' (caso limpio con related_name)
-        rel = getattr(obj, "lecturas", None)
-
-        # Si no hay 'lecturas', usa el manager inverso por defecto de Django
-        if rel is None:
-            rel = obj.lectura_set
-
-        # Obtiene la última lectura por fecha (descendente); puede ser None si no hay datos
-        ultimo = rel.order_by("-timestamp").first()
-
-        # Si hay lectura, la serializamos; si no, devolvemos None
-        return LecturaSerializer(ultimo).data if ultimo else None
+# ------------------------------ SIGNAL ------------------------------
+class SignalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Signal
+        fields = ("id", "vdf", "metric", "tag")
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Signal.objects.all(),
+                fields=["vdf", "tag"],
+                message="Este Tag ya existe en este VFD."
+            )
+        ]

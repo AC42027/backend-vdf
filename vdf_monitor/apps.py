@@ -14,7 +14,7 @@ class VdfMonitorConfig(AppConfig):
         scheduler.add_job(
             lambda: call_command('escanear_vdfs'),
             'interval',
-            seconds=600
+            seconds=3600
         )
 
         scheduler.start()

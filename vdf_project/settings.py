@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-hbg0%jz@i3#ed3p_)35ps$b_x%y&19twusi-i-0i*$pbcrit7s'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['10.107.194.110', 'localhost', '127.0.0.1']
 
@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'import_export',
     'rest_framework',
     'vdf_monitor',
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,6 +45,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -51,6 +54,16 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+STORAGE = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedMainfestStaticFilesStorage",
+    },
+
+}
+
 
 ROOT_URLCONF = 'vdf_project.urls'
 
@@ -117,9 +130,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATIcFIles_DIRS = [os.path.join(BASE_DIR, 'static')]
+FORCE_SCRIPT_NAME = "/vfd_monitoring/backend-vdf"
+USE_X_FORWARDED_HOST = True
+
+STATIC_URL = f"{FORCE_SCRIPT_NAME}/static/"
+STATIC_ROOT = BASE_DIR / "static"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

@@ -1,107 +1,103 @@
+# =============================================================================
 # vdf_monitor/admin.py
-# ——————————————————————————————————————————————————————————————
-# Admin de Django para gestionar VDF (variadores) y sus Lecturas.
-# ——————————————————————————————————————————————————————————————
+# Admin de Django para jerarquía, Vdf, Signal y Lectura.
+# Incluye INLINE de Signal dentro de Vdf para editar múltiples tags por Vdf.
+# =============================================================================
 
-from django.contrib import admin                 # Importa el admin de Django
-from .models import Division, Area, Zona, VDF, Lectura  # Importa tus modelos
-
-
-@admin.register(VDF)
-class VDFAdmin(admin.ModelAdmin):
-    """Formulario del admin para VDF.
-
-    Se usa la relación normalizada ``zona`` para elegir ubicación y se excluyen
-    los antiguos campos de texto ``division``, ``area`` y ``zone`` para evitar
-    confusiones al crear/editar.
-    """
-
-    # Mostrar la jerarquía resuelta en la lista
-    list_display = (
-        "nombre",
-        "division_name",
-        "area_name",
-        "zona_name",
-        "ip",
-        "tag",
-        "tipo",
-    )
-
-    # Filtros y búsquedas sobre la jerarquía normalizada
-    list_filter = ["tipo", "zona__area__division", "zona__area", "zona"]
-    search_fields = [
-        "nombre",
-        "ip",
-        "tag",
-        "zona__nombre",
-        "zona__area__nombre",
-        "zona__area__division__nombre",
-    ]
-
-    ordering = (
-        "zona__area__division__nombre",
-        "zona__area__nombre",
-        "zona__nombre",
-        "tipo",
-        "tag",
-    )
-
-    # Formulario solo con la zona normalizada y demás datos del VDF
-    fields = ("nombre", "zona", "ip", "slot", "tag", "tipo", "descripcion")
-    autocomplete_fields = ("zona",)
-
-    list_per_page = 50
-
-    # --------------------
-    # Helpers para mostrar la jerarquía
-    # --------------------
-    def division_name(self, obj):
-        return obj.zona.area.division.nombre if obj.zona_id else obj.division
-
-    division_name.short_description = "División"
-
-    def area_name(self, obj):
-        return obj.zona.area.nombre if obj.zona_id else obj.area
-
-    area_name.short_description = "Área"
-
-    def zona_name(self, obj):
-        return obj.zona.nombre if obj.zona_id else obj.zone
-
-    zona_name.short_description = "Zona"
+from django.contrib import admin
+from .models import Division, Area, Zona, Vdf, Signal, Lectura
 
 
+# --------------------------- Jerarquía ---------------------------
 @admin.register(Division)
 class DivisionAdmin(admin.ModelAdmin):
-    list_display = ("nombre",)
+    list_display  = ("id", "nombre")
     search_fields = ("nombre",)
-    ordering = ("nombre",)
+    ordering      = ("nombre",)
 
 
 @admin.register(Area)
 class AreaAdmin(admin.ModelAdmin):
-    list_display = ("division", "nombre")
-    list_filter = ("division",)
+    list_display  = ("id", "division", "nombre")
+    list_filter   = ("division",)
     search_fields = ("nombre", "division__nombre")
-    ordering = ("division__nombre", "nombre")
+    ordering      = ("division__nombre", "nombre")
 
 
 @admin.register(Zona)
 class ZonaAdmin(admin.ModelAdmin):
-    list_display = ("area", "nombre")
-    list_filter = ("area__division", "area")
+    list_display  = ("id", "area", "nombre")
+    list_filter   = ("area__division", "area")
     search_fields = ("nombre", "area__nombre", "area__division__nombre")
-    ordering = ("area__division__nombre", "area__nombre", "nombre")
+    ordering      = ("area__division__nombre", "area__nombre", "nombre")
 
+
+# ---------------------------- Signal inline ----------------------------
+class SignalInline(admin.TabularInline):
+    """
+    Permite crear/editar señales (tags) dentro del formulario de Vdf.
+    - Agrega tantas filas como necesites (amp, temp, etc.).
+    """
+    model = Signal
+    fk_name = "vdf"
+    fields = ("metric", "tag")
+    extra = 2                # filas vacías por defecto
+    can_delete = True        # permitir borrar señales
+    verbose_name = "Señal (tag)"
+    verbose_name_plural = "Señales (tags)"
+
+
+# ----------------------------- Vdf admin -----------------------------
+@admin.register(Vdf)
+class VdfAdmin(admin.ModelAdmin):
+    list_display = ("id", "nombre", "ip", "slot", "division_name", "area_name", "zona_name")
+    list_filter  = ("zona__area__division", "zona__area", "zona")
+    search_fields = ("nombre", "ip", "descripcion",
+                     "zona__nombre", "zona__area__nombre", "zona__area__division__nombre")
+    ordering = ("zona__area__division__nombre", "zona__area__nombre", "zona__nombre", "nombre")
+    fields   = ("nombre", "zona", "ip", "slot", "descripcion")
+    autocomplete_fields = ("zona",)
+    list_per_page = 50
+
+    # Habilita edición de múltiples tags por Vdf
+    inlines = [SignalInline]
+
+    # Helpers para columnas legibles
+    def division_name(self, obj): return obj.zona.area.division.nombre if obj.zona_id else obj.division or "—"
+    division_name.short_description = "División"
+    def area_name(self, obj): return obj.zona.area.nombre if obj.zona_id else obj.area or "—"
+    area_name.short_description = "Área"
+    def zona_name(self, obj): return obj.zona.nombre if obj.zona_id else obj.zone or "—"
+    zona_name.short_description = "Zona"
+
+
+# ---------------------------- Signal admin ----------------------------
+@admin.register(Signal)
+class SignalAdmin(admin.ModelAdmin):
+    list_display  = ("id", "vdf", "metric", "tag")
+    list_filter   = ("metric", "vdf__zona__area__division")
+    search_fields = ("tag", "vdf__nombre", "vdf__ip")
+    autocomplete_fields = ("vdf",)
+    ordering = ("vdf__zona__area__division__nombre", "vdf__zona__area__nombre",
+                "vdf__zona__nombre", "vdf__nombre", "metric")
+
+
+# ---------------------------- Lectura admin ----------------------------
 @admin.register(Lectura)
 class LecturaAdmin(admin.ModelAdmin):
-    # Muestra el VDF asociado, valor y timestamp
-    list_display   = ('id', 'vdf', 'valor', 'timestamp', 'estado')
-    # Permite filtrar por tipo y nombre del VDF relacionado
-    list_filter    = ['vdf__tipo', 'vdf__nombre']
-    # Permite buscar por el tag del VDF
-    search_fields  = ['vdf__tag']
-    # Ordena de más reciente a más antiguo
-    ordering       = ('-timestamp',)
-    # Navegación por fecha en la parte superior
-    date_hierarchy = 'timestamp'
+    list_display = ("id", "signal", "vdf_nombre", "metric", "valor", "timestamp", "estado")
+    list_filter  = ("signal__metric", "signal__vdf__zona__area__division",
+                    "signal__vdf__zona__area", "signal__vdf__zona")
+    search_fields = ("signal__tag", "signal__vdf__nombre")
+    ordering = ("-timestamp",)
+    date_hierarchy = "timestamp"
+    autocomplete_fields = ("signal",)
+
+    # Helpers para columnas
+    def vdf_nombre(self, obj):
+        return getattr(obj.signal.vdf, "nombre", None) or f"VDF #{obj.signal.vdf_id}"
+    vdf_nombre.short_description = "VDF"
+
+    def metric(self, obj):
+        return getattr(obj.signal, "metric", "—")
+    metric.short_description = "Métrica"
