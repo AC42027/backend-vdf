@@ -1,3 +1,5 @@
+#vfd_monitoring/backend-vdf/vdf_monitor
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from django.core.management import call_command
 from django.apps import AppConfig
